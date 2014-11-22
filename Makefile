@@ -1,7 +1,12 @@
 DISTDIR = dist
 NAME   	= cookbooks.tar.gz
 
-all: package
+all: package publish
 
-package: check-berkshelf
+package:
 	berks package ${DISTDIR}/${NAME}
+
+publish:
+	git add dist/cookbooks.tar.gz
+	git commit -m "[make] packaging cookbooks"
+	git push origin master
