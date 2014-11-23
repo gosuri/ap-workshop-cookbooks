@@ -1,0 +1,71 @@
+#!/usr/bin/env bash
+
+function init() {
+  BASH_SUGAR_LIB="/usr/lib/bash-sugar.sh"
+  if [[ ! -f "${BASH_SUGAR_LIB}" ]]; then
+    echo "Required file does not exist: ${BASH_SUGAR_LIB}"
+    exit 2
+  fi
+  source "${BASH_SUGAR_LIB}"
+  bash_sugar_init || exit 2
+}
+
+function validate() {
+  abort_if_missing_command git "git is required to run ${0}. Install using sudo apt-get install git"
+
+  if [[ -z "${repo}" ]]; then
+    echo $(help)
+    abort "\nerror: app source is missing"
+  fi
+}
+
+function clean() {
+  if [[  -d "${cachedir}/app" ]]; then
+    rm -rf ${cachedir}/app
+  fi
+}
+
+function get_app_source() {
+  git clone ${repo} ${cachedir}/app --depth 1
+}
+
+function build_docker_image() {
+  local image="app-base"
+  tee "${cachedir}/Dockerfile" > /dev/null <<EOF
+FROM ${image}
+ADD app app
+ENV RAILS_ENV production
+RUN bundle install --path=vendor/bundle --binstubs vendor/bundle/bin  --jobs=4 --retry=3
+RUN bundle exec rake assets:precompile
+EOF
+  docker build --tag app-compiler $cachedir
+}
+
+function main() {
+  # create cache directory if missing
+  if [[ ! -d "${cachedir}" ]]; then
+    mkdir -p ${cachedir}
+  fi
+
+  # clean any old code
+  clean
+
+  # fetch the new app code
+  get_app_source
+  build_docker_image
+  # archive
+}
+
+function help() {
+  echo -e "usage: compile GIT_REPO [CACHE_DIR]"
+}
+
+repo=${1:-}
+cachedir=${2:-}
+if [[ -z "${cachedir}" ]]; then
+  cachedir="/var/containers/app-compiler"
+fi
+
+init # initialize helper functions
+validate
+main

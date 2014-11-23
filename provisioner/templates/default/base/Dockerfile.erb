@@ -1,0 +1,37 @@
+# Pull the latest canonical ubuntu image
+FROM ubuntu
+
+# Install packages
+RUN apt-get update && apt-get install -y <%= @packages.join(" ") %>
+
+ENV RUBY_VERSION <%= @ruby_version %>
+ENV NODE_VERSION <%= @node_version %>
+ENV GEM_PATH /app/vendor/bundle
+
+# Set the app, gem, ruby 
+# and node executables in the path
+ENV PATH /app/bin:$GEM_PATH/bin:/app/vendor/ruby/$RUBY_VERSION/bin:/app/vendor/node/$NODE_VERSION/bin:$PATH
+
+# Create the application directory 
+# where all the app's dependencies will be placed
+RUN mkdir -p /app
+
+# Install and build ruby in the app directory
+RUN git clone https://github.com/sstephenson/ruby-build.git /ruby-build
+RUN /ruby-build/bin/ruby-build ${RUBY_VERSION} /app/vendor/ruby/${RUBY_VERSION}
+
+# Install nodejs binaries
+RUN curl http://nodejs.org/dist/v${NODE_VERSION}/node-v${NODE_VERSION}-linux-x64.tar.gz | tar xz
+RUN mkdir -p /app/vendor/node/${NODE_VERSION}
+RUN mv node-v${NODE_VERSION}-linux-x64/* /app/vendor/node/${NODE_VERSION}
+
+# Install and update rubygems and install bundler
+RUN gem install rubygems-update bundler --no-ri --no-rdoc
+RUN update_rubygems
+
+# cleanup
+RUN rm -rf /ruby-build
+RUN apt-get clean && apt-get autoclean && apt-get autoremove
+
+# set the directory to run the container from to /app
+WORKDIR /app
