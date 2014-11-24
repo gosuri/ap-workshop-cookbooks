@@ -42,4 +42,4 @@ default[:packages][:buildtime] = %w{
 default[:app][:repo] = "https://github.com/gosuri/containers-demo-app.git"
 
 # generate new ones by going to https://discovery.etcd.io/new
-default[:etcd][:discovery_url] = "https://discovery.etcd.io/4610d62ffafbe2f15260f6e4db781412"
+default[:etcd][:discovery_url] = "https://discovery.etcd.io/3f9a759df1ab5c22929657b72fe15e65"
