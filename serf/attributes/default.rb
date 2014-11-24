@@ -1,0 +1,1 @@
+default[:serf][:cluster] = nil
