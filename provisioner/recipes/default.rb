@@ -1,4 +1,4 @@
-include_recipe "provisioner::etcd"
+#include_recipe "provisioner::etcd"
 include_recipe "docker"
 include_recipe "serf"
 

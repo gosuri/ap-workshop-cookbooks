@@ -21,3 +21,13 @@ execute "unzip serf binary" do
   cwd "/usr/local/bin"
   command "unzip -qo /var/cache/serf.zip"
 end
+
+runit_service "serf" do
+  default_logger true
+end
+
+if node[:serf][:cluster]
+  execute "join-serf-cluster" do
+    command "serf join #{node[:serf][:cluster]}"
+  end
+end
