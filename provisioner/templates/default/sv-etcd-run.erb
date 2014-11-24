@@ -1,3 +1,3 @@
 #!/bin/sh
 exec 2>&1
-exec etcd -name $(hostname) -data-dir $(hostname) -discovery <%= node[:etcd][:discovery_url] %>
+exec etcd -name $(hostname) -data-dir $(hostname) -discovery <%= node[:etcd][:discovery_url] %> --initial-cluster-name
