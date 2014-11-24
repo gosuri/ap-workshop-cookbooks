@@ -1,7 +1,8 @@
 default[:docker].tap do |d|
   d[:init_type]           = "runit"
   d[:container_init_type] = "runit"
-  d[:image_cmd_timeout]   = 2400
+  d[:image_cmd_timeout]     = 2400
+  d[:container_cmd_timeout] = 2400
 end
 
 default[:rubyver] = "2.1.2"
@@ -39,3 +40,6 @@ default[:packages][:buildtime] = %w{
 }
 
 default[:app][:repo] = "https://github.com/gosuri/containers-demo-app.git"
+
+# generate new ones by going to https://discovery.etcd.io/new
+default[:etcd][:discovery_url] = "https://discovery.etcd.io/4610d62ffafbe2f15260f6e4db781412"

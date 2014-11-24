@@ -3,7 +3,7 @@
 #
 current_dir = File.expand_path(File.dirname __FILE__)
 # copy ~/.ssh/id_rsa to image:/root/.ssh/id_rsa
-COPY_ID_RSA = ['COPY_ID_RSA'] || false
+COPY_ID_RSA = ENV['COPY_ID_RSA'] || false
 
 HOSTNAME = ENV['BOXHOSTNAME'] || "airpair-demo-provisioner" 
 BASE_BOX = ENV["BASEBOX"]     || "ubuntu/trusty64"
@@ -30,12 +30,11 @@ if [ ! -f "/usr/local/bin/chef-solo" ]; then
   aptitude install -y ruby1.9.1 ruby1.9.1-dev make &&
   sudo gem1.9.1 install --no-rdoc --no-ri chef --version 11.16.4
 fi
+BASH
 
-#{"export COPY_ID_RSA=true" if COPY_ID_RSA}
-if [[ -z "${COPY_ID_RSA}" ]]; then
-  echo "#{`cat $HOME/.ssh/id_rsa`}" > /root/.ssh/id_rsa
-  chmod go-rwx /root/.ssh/id_rsa
-fi
+$copyid = <<-BASH
+echo "#{`cat $HOME/.ssh/id_rsa`}" > /root/.ssh/id_rsa
+chmod go-rwx /root/.ssh/id_rsa
 BASH
 
 Vagrant.require_version(VAGRANT_REQUIRE_VERSION)
@@ -57,6 +56,7 @@ Vagrant.configure(VAGRANTFILE_API_VERSION) do |config|
   end
 
   config.vm.provision :shell, inline: $shell
+  config.vm.provision :shell, inline: $copyid if COPY_ID_RSA
   config.vm.provision 'chef_solo' do |chef|
     chef.json     = CHEFJSON
     chef.run_list = RUNLIST
