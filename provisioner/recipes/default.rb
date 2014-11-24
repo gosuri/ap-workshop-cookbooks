@@ -9,6 +9,7 @@ docker_container 'registry' do
   port '5000:5000'
   env 'SETTINGS_FLAVOR=local'
   volume '/mnt/docker:/docker-storage'
+  cmd_timeout 2400
 end
 
 # install build compiler
