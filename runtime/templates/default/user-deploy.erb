@@ -1,0 +1,24 @@
+#!/bin/bash
+
+function stop() {
+  echo "stopping container"
+  docker rm -f app-runtime
+}
+
+function pull() {
+  echo "pulling latest source"
+  docker import <%= @url %> app-runtime
+}
+
+function run() {
+  echo "running"
+  path=/app/bin:/app/vendor/bundle/bin:/app/vendor/ruby/2.1.2/bin:/app/vendor/node/0.10.33/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+  secret_key_base=MGU1YmZiNTZjZjczOTZlOWEwNDM3YTQ3Mzk5MzE0MmEwM2M0NTExYjIyNmFlZjFh
+  rails_env=production
+  gem_path=/app/vendor/bundle
+  docker run -d -p 9292:9292 -e PATH=$path -e SECRET_KEY_BASE=$secret_key_base -e RAILS_ENV=$rails_env -e GEM_PATH=$gem_path -w "/app" --name app-runtime app-runtime puma
+}
+
+pull
+stop
+run

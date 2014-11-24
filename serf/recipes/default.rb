@@ -24,8 +24,17 @@ execute "unzip serf binary" do
   command "unzip -qo /var/cache/serf.zip"
 end
 
+serf_opts = [ "-bind=0.0.0.0" ]
+
+if events = node[:serf][:event_handlers] 
+  events.each do |event, handler|
+    serf_opts << "-event-handler=\"#{event}=#{handler}\""
+  end
+end
+
 runit_service "serf" do
   default_logger true
+  options({:opts => serf_opts.join(" ")})
 end
 
 if node[:serf][:cluster]

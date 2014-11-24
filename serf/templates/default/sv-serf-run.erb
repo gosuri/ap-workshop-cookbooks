@@ -2,4 +2,4 @@
 
 exec 2>&1
 
-exec serf agent -bind=0.0.0.0
+exec serf agent <%= @options[:opts] %>

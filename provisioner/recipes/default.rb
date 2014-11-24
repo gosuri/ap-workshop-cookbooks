@@ -27,6 +27,10 @@ file "/usr/local/bin/compile-app" do
   content <<BASH
 #!/usr/bin/env bash
 build-compiler #{node[:app][:repo]}
+id=$(docker run -td app-runtime /bin/bash)
+docker export ${id} > app-runtime.tar
+aws s3 cp app-runtime.tar s3://ap-workshop/app-runtime.tar --region us-east-1
+docker rm -f ${id}
+serf event deploy
 BASH
 end
-
