@@ -3,6 +3,8 @@ include_recipe "docker"
 
 docker_image "registry"
 
+include_recipe "serf"
+
 # setup docker registry
 docker_container 'registry' do
   detach true
