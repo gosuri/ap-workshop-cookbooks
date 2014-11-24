@@ -5,6 +5,8 @@
 # Copyright (c) 2014 The Authors, All Rights Reserved.
 
 
+include_recipe "runit"
+
 # fetch binary
 remote_file "/var/cache/serf.zip" do
   source "https://dl.bintray.com/mitchellh/serf/0.6.3_linux_amd64.zip"
