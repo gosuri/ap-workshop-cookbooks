@@ -1,9 +1,10 @@
 include_recipe "provisioner::etcd"
 include_recipe "docker"
+include_recipe "serf"
 
 docker_image "registry"
 
-include_recipe "serf"
+#include_recipe "serf"
 
 # setup docker registry
 docker_container 'registry' do
@@ -32,5 +33,3 @@ build-compiler #{node[:app][:repo]}
 BASH
 end
 
-
-# include_recipe "provisioner::runtime"
