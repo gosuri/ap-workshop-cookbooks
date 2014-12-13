@@ -1,13 +1,21 @@
 #!/bin/bash
 
+image=app-runtime-$RANDOM
+
 function stop() {
-  echo "stopping container"
-  docker rm -f app-runtime
+  echo "stopping containers ${running}"
+  test -n "${running}" && docker rm -f ${running}
+}
+
+function remove_images() {
+  echo "removing images"
+  test -n "${images}" && docker rmi ${images}
 }
 
 function pull() {
-  echo "pulling latest source"
-  docker import <%= @url %> app-runtime
+  echo "pulling latest source to ${image}"
+  docker import <%= @url %> ${image}
+  docker import https://s3.amazonaws.com/ap-workshop/app-runtime.tar ${image}
 }
 
 function run() {
@@ -16,9 +24,13 @@ function run() {
   secret_key_base=MGU1YmZiNTZjZjczOTZlOWEwNDM3YTQ3Mzk5MzE0MmEwM2M0NTExYjIyNmFlZjFh
   rails_env=production
   gem_path=/app/vendor/bundle
-  docker run -d -p 9292:9292 -e PATH=$path -e SECRET_KEY_BASE=$secret_key_base -e RAILS_ENV=$rails_env -e GEM_PATH=$gem_path -w "/app" --name app-runtime app-runtime puma
+  docker run -d -p 80:9292 -e PATH=$path -e SECRET_KEY_BASE=$secret_key_base -e RAILS_ENV=$rails_env -e GEM_PATH=$gem_path -w "/app" ${image} puma
 }
 
-pull
-stop
-run
+function deploy() {
+ pull && stop && run
+}
+
+running=$(docker ps -q)
+images=$(docker images -q)
+deploy > /var/log/deploy.log 2>&1 &
